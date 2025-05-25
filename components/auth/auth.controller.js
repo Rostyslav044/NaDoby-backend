@@ -9,8 +9,11 @@ const User = require("../users/user.model");
 // Функция для регистрации юзера
 
 exports.register = asyncHandler(async (req, res, next) => {
-  let { name, email, password, role='user' } = req.body;
-
+  let new_password = crypto.randomBytes(10).toString("hex");
+  let { name, email, password, type, role = "user" } = req.body;
+if (type ==="google" && !password) {
+   password = new_password 
+}
   email = email.toLowerCase();
 
   user = await User.create({
@@ -20,32 +23,41 @@ exports.register = asyncHandler(async (req, res, next) => {
     role,
   });
 
-//   sendEmailVerification(user, req);
+  //   sendEmailVerification(user, req);
 
   sendTokenResponse(user, 200, res);
 });
 // Функция для авторизации юзера
 
 exports.login = asyncHandler(async (req, res, next) => {
-  let { email, password } = req.body;
-
-  if (!email || !password) {
+  let { email, password, type } = req.body;
+if (!email && type == "google") {
+  return next(new ErrorResponse("Please provide an email", 400));
+}
+  if ((!email || !password) && type !== "google") {
     return next(new ErrorResponse("Please provide an email and password", 400));
   }
 
   email = email.toLowerCase();
 
-  const user = await User.findOne({ email }).select("+password");
+  let user = null;
+  if (type === "google") {
+    user = await User.findOne({ email });
+  } else {
+    user = await User.findOne({ email }).select("+password");
+  }
 
   if (!user) {
     return next(new ErrorResponse("Invalid credentials", 400));
   }
+if(type !== "google"){
+ const isMatch = await user.matchPassword(password);
 
-  const isMatch = await user.matchPassword(password);
-
-  if (!isMatch) {
+  if (!isMatch ) {
     return next(new ErrorResponse("Invalid credentials", 400));
   }
+}
+ 
   sendTokenResponse(user, 200, res);
 });
 
