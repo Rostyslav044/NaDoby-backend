@@ -20,12 +20,12 @@ const mongoose = require('mongoose');
 
 const apartmentSchema = new mongoose.Schema({
   city: { type: String, required: true },           // Наприклад, "Київ, Україна, 02000"
-  district: { type: String, required: true },       // Наприклад, "троєщина"
+  district: { type: String },       // Наприклад, "троєщина"
   metro: { type: String, default: null },           // Наприклад, null або "Лісова"
   hasMetro: { type: Boolean, default: false },      // true або false
   description: { type: String, required: false },   // Опис, необов'язкове поле
   photos: [String],                                 // Масив фото
-  price: { type: Number, required: true },          // Ціна
+  price: { type: String, required: true },          // Ціна
   createdAt: { type: Date, default: Date.now }      // Дата створення
 });
 

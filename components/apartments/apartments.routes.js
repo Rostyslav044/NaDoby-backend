@@ -7,9 +7,9 @@ const storage = multer.memoryStorage(); // Храним файлы в опера
 const upload = multer({ storage }); // Настраиваем multer с этим типом хранения
 
 // Роут POST-запроса по пути /add, загружаем до 9 фото, передаём в контроллер
-// router.post('/add', upload.array('photos', 15), addApartment);
+router.post('/add', upload.array('photos', 15), addApartment);
 
-router.post('/add', addApartment)
+// router.post('/add', addApartment)
 module.exports = router; // Экспорт роутера
 
 
