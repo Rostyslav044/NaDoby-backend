@@ -9,4 +9,5 @@ module.exports = (app) => {
 	app.use(versionOne('users'), userRoutes)
 	app.use(versionOne('upload'), uploadRoutes); // здесь загрузка
 	app.use(versionOne('apartments'), apartmentRoutes); 
+	
 }

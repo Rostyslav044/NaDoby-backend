@@ -5,7 +5,7 @@ const { uploadToGoogleCloud } = require('./apartmentsGoogleCloud'); // Импо�
 const addApartment = async (req, res) => {
   try {
     // Извлекаем данные из тела запроса
-    const { objectName, category, description, city, street, price } = req.body;
+    const { objectName, category, description, city, street, price, photos } = req.body;
 
     const photoUrls = []; // Массив для хранения URL загруженных фото
 
@@ -25,7 +25,7 @@ const addApartment = async (req, res) => {
       city,
       street,
       price,
-      photos: photoUrls, // Сохраняем массив URL фото
+      photos, // Сохраняем массив URL фото
     });
 
     await apartment.save(); // Сохраняем в MongoDB
@@ -38,6 +38,18 @@ const addApartment = async (req, res) => {
   }
 };
 
-module.exports = { addApartment }; // Экспорт контроллера
+// ✅ Контроллер для получения всех квартир
+const getAllApartments = async (req, res) => {
+  try {
+    const apartments = await Apartment.find(); // Получаем все апартаменты из MongoDB
+    res.status(200).json(apartments); // Отправляем клиенту
+  } catch (error) {
+    console.error('Ошибка при получении квартир:', error);
+    res.status(500).json({ message: 'Ошибка сервера при получении квартир' });
+  }
+};
+
+module.exports = { addApartment, getAllApartments };
+
 
 
