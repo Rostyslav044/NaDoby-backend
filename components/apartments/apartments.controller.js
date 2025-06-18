@@ -5,7 +5,7 @@ const { uploadToGoogleCloud } = require('./apartmentsGoogleCloud'); // Импо�
 const addApartment = async (req, res) => {
   try {
     // Извлекаем данные из тела запроса
-    const { objectName, category, description, city, street, price, photos } = req.body;
+    const { objectName, category, description, city, street, price, photos, district } = req.body;
 
     const photoUrls = []; // Массив для хранения URL загруженных фото
 
@@ -16,15 +16,18 @@ const addApartment = async (req, res) => {
         photoUrls.push(url); // Добавляем URL в массив
       }
     }
-
+// objectName,
     // Создаём новую запись квартиры
     const apartment = new Apartment({
-      objectName,
+      district,
       category,
       description,
       city,
       street,
       price,
+      // rooms,     // 👈
+      // beds,    // 👈
+      // floor,     // 👈
       photos, // Сохраняем массив URL фото
     });
 
@@ -50,6 +53,8 @@ const getAllApartments = async (req, res) => {
 };
 
 module.exports = { addApartment, getAllApartments };
+
+
 
 
 
