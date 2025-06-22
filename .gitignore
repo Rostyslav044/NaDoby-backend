@@ -2,6 +2,7 @@
 # Google Cloud credentials
 credentials/credentials.json
 
+
 # Игнорировать node_modules и прочее (обычные правила)
 node_modules/
 .env
