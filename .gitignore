@@ -1,3 +1,10 @@
-package-lock.json
+# Игнорировать папку с ключами Google Cloud
+/credentials/
 
-node_modules
+# Игнорировать конкретный файл
+credentials.json
+
+# Игнорировать node_modules и прочее (обычные правила)
+node_modules/
+.env
+.DS_Store
