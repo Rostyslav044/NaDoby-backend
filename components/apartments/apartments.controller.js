@@ -1,11 +1,32 @@
 const Apartment = require('./apartments.model'); // Импорт модели Apartment
 const { uploadToGoogleCloud } = require('./apartmentsGoogleCloud'); // Импорт функции загрузки на Google Cloud
 
+// ✅ Контроллер для получения апартамента по ID
+const getApartmentById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const apartment = await Apartment.findById(id);
+
+    if (!apartment) {
+      return res.status(404).json({ message: 'Объявление не найдено' });
+    }
+
+    res.status(200).json(apartment);
+  } catch (error) {
+    console.error('Ошибка при получении квартиры по ID:', error);
+    res.status(500).json({ message: 'Ошибка сервера при получении квартиры' });
+  }
+};
+
+
+
 // Контроллер для добавления квартиры
 const addApartment = async (req, res) => {
   try {
     // Извлекаем данные из тела запроса
-    const { objectName, category, description, city, street, price, photos, district } = req.body;
+    const { objectName, category, description,
+       city, street, price, photos, district,userId,...rest } = req.body;
 
     const photoUrls = []; // Массив для хранения URL загруженных фото
 
@@ -30,6 +51,8 @@ const addApartment = async (req, res) => {
       // beds,    // 👈
       // floor,     // 👈
       photos, // Сохраняем массив URL фото
+      userId,  // обязательно сохраняем userId
+      ...rest,
       ...req.body
     });
 
@@ -54,63 +77,8 @@ const getAllApartments = async (req, res) => {
   }
 };
 
-module.exports = { addApartment, getAllApartments };
+module.exports = { addApartment, getAllApartments,  getApartmentById };
 
 
 
 
-// const Apartment = require('./apartments.model');
-// const { uploadToGoogleCloud } = require('./apartmentsGoogleCloud');
-
-// const addApartment = async (req, res) => {
-//   try {
-//     const { objectName, category, description, city, street, price, photos, district } = req.body;
-
-//     const photoUrls = [];
-
-//     if (req.files && req.files.length) {
-//       for (const file of req.files) {
-//         const url = await uploadToGoogleCloud(file);
-//         photoUrls.push(url);
-//       }
-//     }
-
-//     const safePhotos = Array.isArray(photos) ? photos : (photos ? [photos] : []);
-
-//     const apartment = new Apartment({
-//       district,
-//       category,
-//       description,
-//       city,
-//       objectName,
-//       street,
-//       price,
-//       photos: photoUrls.length ? photoUrls : safePhotos,
-//       ...req.body,
-//     });
-
-//     await apartment.save();
-
-//     res.status(201).json({ message: 'Объявление успешно добавлено', apartment });
-//   } catch (error) {
-//     console.error('Ошибка при добавлении:', error);
-//     res.status(500).json({ message: 'Ошибка сервера при добавлении объявления' });
-//   }
-// };
-
-// // 🔥 ЭТО ОБЯЗАТЕЛЬНО
-// const getAllApartments = async (req, res) => {
-//   try {
-//     const apartments = await Apartment.find();
-//     res.status(200).json(apartments);
-//   } catch (error) {
-//     console.error('Ошибка при получении квартир:', error);
-//     res.status(500).json({ message: 'Ошибка сервера при получении квартир' });
-//   }
-// };
-
-// // 📦 Вот ЭТО добавь обязательно в самый низ:
-// module.exports = {
-//   addApartment,
-//   getAllApartments
-// };

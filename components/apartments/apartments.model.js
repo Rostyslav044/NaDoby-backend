@@ -50,9 +50,14 @@ const apartmentSchema = new mongoose.Schema({
   ageLimit: { type: Number },
   childrenFrom: { type: Number }, // если добавлен на фронте
   name: { type: String },         // если добавлен на фронте
-
+  houseNumber: { type: String }, 
   conveniences: [String],
-  uploudImages: [String]
+  uploudImages: [String],
+  latitude: { type: Number },
+longitude: { type: Number },
+userId: { type: String, required: true },
+
+
 }, { timestamps: true });
 
 module.exports = mongoose.model('Apartment', apartmentSchema);
