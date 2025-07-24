@@ -26,7 +26,7 @@ const addApartment = async (req, res) => {
   try {
     // Извлекаем данные из тела запроса
     const { objectName, category, description,
-       city, street, price, photos, district,userId,...rest } = req.body;
+       city, street, price, photos, district,userId} = req.body;
 
     const photoUrls = []; // Массив для хранения URL загруженных фото
 
@@ -52,7 +52,7 @@ const addApartment = async (req, res) => {
       // floor,     // 👈
       photos, // Сохраняем массив URL фото
       userId,  // обязательно сохраняем userId
-      ...rest,
+      // ...rest,
       ...req.body
     });
 
@@ -78,6 +78,8 @@ const getAllApartments = async (req, res) => {
 };
 
 module.exports = { addApartment, getAllApartments,  getApartmentById };
+
+
 
 
 
