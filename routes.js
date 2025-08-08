@@ -11,3 +11,5 @@ module.exports = (app) => {
 	app.use(versionOne('apartments'), apartmentRoutes); 
 	
 }
+
+

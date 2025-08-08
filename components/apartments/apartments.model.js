@@ -7,8 +7,8 @@ const apartmentSchema = new mongoose.Schema({
   objectName: { type: String, required: true },
   category: { type: String, required: true },
   description: { type: String, required: true },
-  region: { type: String },
-  originalCity: { type: String },
+  region: { type: String},
+  // originalCity: { type: String },
   city: { type: String, required: true },
   street: { type: String, required: true },
   district: { type: String }, // необязательное
