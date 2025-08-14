@@ -121,7 +121,26 @@ const addApartment = async (req, res) => {
     });
   }
 };
+const getUserApartments = async (req, res) => {
+  try {
+    
+    
+    if (!req.params.userId) {
+      return res.status(400).json({ message: 'Необхідно вказати user_id' });
+    }
 
+    const apartments = await Apartment.find({ user_id: req.params.userId});
+    
+    if (apartments.length === 0) {
+      return res.status(404).json({ message: 'Апартаменти для цього користувача не знайдено' });
+    }
+
+    res.status(200).json(apartments);
+  } catch (error) {
+    console.error('Помилка при отриманні апартаментів користувача:', error);
+    res.status(500).json({ message: 'Помилка сервера' });
+  }
+};
 const getAllApartments = async (req, res) => {
   try {
     const apartments = await Apartment.find();
@@ -132,7 +151,7 @@ const getAllApartments = async (req, res) => {
   }
 };
 
-module.exports = { addApartment, getAllApartments, getApartmentById };
+module.exports = { addApartment, getAllApartments, getApartmentById ,getUserApartments};
 
 
 
