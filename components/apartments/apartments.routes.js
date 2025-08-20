@@ -71,7 +71,7 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const { addApartment, getAllApartments, getApartmentById ,getUserApartments} = require('./apartments.controller');
+const { addApartment, getAllApartments, getApartmentById ,getUserApartments,getUserApartmentsCount} = require('./apartments.controller');
 const Apartment = require('./apartments.model');
 
 const storage = multer.memoryStorage();
@@ -87,6 +87,7 @@ router.post('/add', upload.array('files', 15), addApartment);
 router.get('/get-all', getAllApartments);
 router.get('/:id', getApartmentById);
 router.get('/user-apartment/:userId', getUserApartments);
+router.get('/user-apartment-count/:userId', getUserApartmentsCount);
 router.get('/user/:userId', async (req, res) => {
   try {
     const apartments = await Apartment.find({ userId: req.params.userId });

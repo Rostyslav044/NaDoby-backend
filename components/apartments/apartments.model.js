@@ -50,7 +50,7 @@ const apartmentSchema = new mongoose.Schema({
   latitude: { type: Number },
   longitude: { type: Number },
 
-  user_id: { type: String, required: false}, // id пользователя
+  user_id: { type: String, required: true}, // id пользователя
 
 }, { timestamps: true });
 

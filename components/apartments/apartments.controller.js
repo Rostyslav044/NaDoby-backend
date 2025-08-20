@@ -141,6 +141,27 @@ const getUserApartments = async (req, res) => {
     res.status(500).json({ message: 'Помилка сервера' });
   }
 };
+const getUserApartmentsCount = async (req, res) => {
+  try {
+    if (!req.params.userId) {
+      return res.status(400).json({ message: 'Необхідно вказати user_id' });
+    }
+
+    const count = await Apartment.countDocuments({ user_id: req.params.userId });
+
+    // Якщо хочете завжди повертати кількість:
+    return res.status(200).json({ count });
+
+    // Якщо залишаємо 404 при відсутності:
+    // if (count === 0) {
+    //   return res.status(404).json({ message: 'Апартаменти для цього користувача не знайдено' });
+    // }
+    // res.status(200).json({ count });
+  } catch (error) {
+    console.error('Помилка при отриманні кількості апартаментів користувача:', error);
+    res.status(500).json({ message: 'Помилка сервера' });
+  }
+};
 const getAllApartments = async (req, res) => {
   try {
     const apartments = await Apartment.find();
@@ -151,7 +172,7 @@ const getAllApartments = async (req, res) => {
   }
 };
 
-module.exports = { addApartment, getAllApartments, getApartmentById ,getUserApartments};
+module.exports = { addApartment, getAllApartments, getApartmentById ,getUserApartments,getUserApartmentsCount};
 
 
 
