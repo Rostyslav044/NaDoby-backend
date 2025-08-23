@@ -155,24 +155,24 @@ const updateApartment = async (req, res) => {
       photoUrls = [...photoUrls, ...uploadedUrls];
     }
 
-    // const updatedApartment = await Apartment.findByIdAndUpdate(
-    //   id,
-    //   {
-    //     ...apartmentData,
-    //     photos: photoUrls
-    //   },
-    //   { new: true, runValidators: true }
-    // );
+    const updatedApartment = await Apartment.findByIdAndUpdate(
+      id,
+      {
+        ...apartmentData,
+        photos: photoUrls
+      },
+      { new: true, runValidators: true }
+    );
 
  // Используйте findOneAndUpdate вместо findByIdAndUpdate
- const updatedApartment = await Apartment.findOneAndUpdate(
-  { _id: id },
-  {
-    ...apartmentData,
-    photos: photoUrls
-  },
-  { new: true, runValidators: true }
-);
+//  const updatedApartment = await Apartment.findOneAndUpdate(
+//   { _id: id },
+//   {
+//     ...apartmentData,
+//     photos: photoUrls
+//   },
+//   { new: true, runValidators: true }
+// );
 
     console.log('Результат обновления:', updatedApartment); // Добавьте лог
 
