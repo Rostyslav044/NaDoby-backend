@@ -1,41 +1,6 @@
 
 
 
-
-// const express = require('express');
-// const router = express.Router();
-// const multer = require('multer');
-// const { addApartment, getAllApartments, getApartmentById ,getUserApartments,getUserApartmentsCount} = require('./apartments.controller');
-// const Apartment = require('./apartments.model');
-
-// const storage = multer.memoryStorage();
-// const upload = multer({ 
-//   storage,
-//   limits: { 
-//     fileSize: 50 * 1024 * 1024, // 50MB
-//     files: 15
-//   }
-// });
-
-// router.post('/add', upload.array('files', 15), addApartment);
-// router.get('/get-all', getAllApartments);
-// router.get('/:id', getApartmentById);
-// router.get('/user-apartment/:userId', getUserApartments);
-// router.get('/user-apartment-count/:userId', getUserApartmentsCount);
-// router.get('/user/:userId', async (req, res) => {
-//   try {
-//     const apartments = await Apartment.find({ userId: req.params.userId });
-//     res.status(200).json(apartments);
-//   } catch (error) {
-//     console.error('Ошибка при получении квартир пользователя:', error);
-//     res.status(500).json({ message: 'Ошибка сервера' });
-//   }
-// });
-
-// module.exports = router;
-
-
-
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
@@ -45,7 +10,8 @@ const {
   getApartmentById, 
   getUserApartments, 
   getUserApartmentsCount,
-  updateApartment 
+  updateApartment,
+  deleteApartment
 } = require('./apartments.controller');
 const Apartment = require('./apartments.model');
 
@@ -65,6 +31,7 @@ router.get('/get-all', getAllApartments);
 router.get('/:id', getApartmentById);
 router.get('/user-apartment/:userId', getUserApartments);
 router.get('/user-apartment-count/:userId', getUserApartmentsCount);
+router.delete('/:id', deleteApartment);
 
 router.get('/user/:userId', async (req, res) => {
   try {

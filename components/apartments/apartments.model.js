@@ -1,6 +1,7 @@
 
 
 
+
 const mongoose = require('mongoose');
 
 const apartmentSchema = new mongoose.Schema({
@@ -8,7 +9,7 @@ const apartmentSchema = new mongoose.Schema({
   category: { type: String, required: true },
   description: { type: String, required: true },
   region: { type: String},
-  // originalCity: { type: String },
+  originalCity: { type: String },
   city: { type: String, required: true },
   street: { type: String, required: true },
   district: { type: String }, // необязательное
@@ -55,8 +56,3 @@ const apartmentSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 module.exports = mongoose.model('Apartment', apartmentSchema);
-
-
-
-
-
