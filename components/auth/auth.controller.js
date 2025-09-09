@@ -11,6 +11,9 @@ const User = require("../users/user.model");
 exports.register = asyncHandler(async (req, res, next) => {
   let new_password = crypto.randomBytes(10).toString("hex");
   let { name, email, password, type, role = "user" } = req.body;
+  let user = await User.findOne({ email });
+  console.log(user);
+if(!user){
 if (type ==="google" && !password) {
    password = new_password 
 }
@@ -22,6 +25,8 @@ if (type ==="google" && !password) {
     password,
     role,
   });
+}
+
 
   //   sendEmailVerification(user, req);
 
@@ -43,6 +48,7 @@ if (!email && type == "google") {
   let user = null;
   if (type === "google") {
     user = await User.findOne({ email });
+    console.log(user);
   } else {
     user = await User.findOne({ email }).select("+password");
   }

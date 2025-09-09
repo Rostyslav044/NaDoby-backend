@@ -1,4 +1,7 @@
 
+
+
+
 const Apartment = require('./apartments.model');
 const { uploadToGoogleCloud } = require('./apartmentsGoogleCloud');
 
@@ -47,8 +50,8 @@ const updateApartment = async (req, res) => {
     const { id } = req.params;
     const { photos = [], ...apartmentData } = req.body;
     
-    console.log('Полученные данные для обновления:', apartmentData); // Добавьте лог
-    console.log('ID объявления:', id); // Добавьте лог
+    console.log('Полученные данные для обновления:', apartmentData);
+    console.log('ID объявления:', id);
 
     let photoUrls = [...photos];
 
@@ -67,8 +70,7 @@ const updateApartment = async (req, res) => {
       { new: true, runValidators: true }
     );
 
- 
-    console.log('Результат обновления:', updatedApartment); // Добавьте лог
+    console.log('Результат обновления:', updatedApartment);
 
     if (!updatedApartment) {
       return res.status(404).json({ message: 'Объявление не найдено' });
@@ -156,6 +158,240 @@ const deleteApartment = async (req, res) => {
   }
 };
 
+// Middleware для получения userId
+const getUserId = (req, res, next) => {
+  req.userId = req.headers['user-id'];
+  
+  if (!req.userId) {
+    return res.status(401).json({ 
+      success: false,
+      message: 'Необходима авторизация: user-id header is required' 
+    });
+  }
+  
+  next();
+};
+
+
+
+const toggleFavorite = async (req, res) => {
+  try {
+    const { apartmentId } = req.body;
+    const userId = req.userId;
+
+    console.log('=== TOGGLE FAVORITE START ===');
+    console.log('apartmentId:', apartmentId);
+    console.log('userId:', userId);
+
+    if (!apartmentId) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'apartmentId is required' 
+      });
+    }
+
+    const apartment = await Apartment.findById(apartmentId);
+    if (!apartment) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'Объявление не найдено' 
+      });
+    }
+
+    const isCurrentlyFavorite = apartment.favoritedBy.some(favId => 
+      favId.toString() === userId.toString()
+    );
+
+    console.log('Current favorite state:', isCurrentlyFavorite);
+    console.log('favoritedBy before:', apartment.favoritedBy);
+    
+    if (isCurrentlyFavorite) {
+      // Удаляем из избранного
+      apartment.favoritedBy = apartment.favoritedBy.filter(id => id.toString() !== userId.toString());
+      console.log('Removed from favorites');
+    } else {
+      // Добавляем в избранное
+      apartment.favoritedBy.push(userId);
+      console.log('Added to favorites');
+    }
+
+    await apartment.save();
+
+    console.log('favoritedBy after:', apartment.favoritedBy);
+    console.log('New isFavorite state:', !isCurrentlyFavorite);
+    console.log('=== TOGGLE FAVORITE END ===');
+
+    res.status(200).json({ 
+      success: true,
+      isFavorite: !isCurrentlyFavorite,
+      favoritesCount: apartment.favoritedBy.length,
+      message: isCurrentlyFavorite ? 'Удалено из избранного' : 'Добавлено в избранное'
+    });
+  } catch (error) {
+    console.error('Ошибка при обновлении избранного:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Ошибка сервера',
+      error: error.message 
+    });
+  }
+};
+// Получить все избранные объявления пользователя
+const getUserFavorites = async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    // Находим все объявления, где пользователь в избранном
+    const favoriteApartments = await Apartment.find({ 
+      favoritedBy: userId 
+    });
+
+    res.status(200).json({
+      success: true,
+      favorites: favoriteApartments,
+      count: favoriteApartments.length
+    });
+  } catch (error) {
+    console.error('Ошибка при получении избранного:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Ошибка сервера' 
+    });
+  }
+};
+
+// Проверить, в избранном ли объявление у пользователя
+// const checkIsFavorite = async (req, res) => {
+//   try {
+//     const { apartmentId } = req.params;
+//     const userId = req.userId;
+
+//     const apartment = await Apartment.findById(apartmentId);
+//     if (!apartment) {
+//       return res.status(404).json({ 
+//         success: false,
+//         message: 'Объявление не найдено' 
+//       });
+//     }
+
+//     const isFavorite = apartment.favoritedBy.includes(userId);
+    
+//     res.status(200).json({ 
+//       success: true,
+//       isFavorite 
+//     });
+//   } catch (error) {
+//     console.error('Ошибка при проверке избранного:', error);
+//     res.status(500).json({ 
+//       success: false,
+//       message: 'Ошибка сервера' 
+//     });
+//   }
+// };
+
+// Измени этот метод
+const checkIsFavorite = async (req, res) => {
+  try {
+    // Получаем apartmentId из query параметров вместо params
+    const { apartmentId } = req.query;
+    const userId = req.userId;
+
+    if (!apartmentId) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'apartmentId is required' 
+      });
+    }
+
+    const apartment = await Apartment.findById(apartmentId);
+    if (!apartment) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'Объявление не найдено' 
+      });
+    }
+
+    const isFavorite = apartment.favoritedBy.includes(userId);
+    
+    res.status(200).json({ 
+      success: true,
+      isFavorite 
+    });
+  } catch (error) {
+    console.error('Ошибка при проверке избранного:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Ошибка сервера' 
+    });
+  }
+};
+
+// Прямое удаление из избранного
+// const removeFavorite = async (req, res) => {
+//   try {
+//     const { apartmentId } = req.body;
+//     const userId = req.userId;
+
+//     console.log('Remove favorite request:', { apartmentId, userId });
+
+//     if (!apartmentId) {
+//       return res.status(400).json({ 
+//         success: false,
+//         message: 'apartmentId is required' 
+//       });
+//     }
+
+//     const apartment = await Apartment.findById(apartmentId);
+//     if (!apartment) {
+//       return res.status(404).json({ 
+//         success: false,
+//         message: 'Объявление не найдено' 
+//       });
+//     }
+
+//     // Удаляем пользователя из массива favoritedBy
+//     apartment.favoritedBy = apartment.favoritedBy.filter(id => id.toString() !== userId.toString());
+    
+//     await apartment.save();
+
+//     res.status(200).json({ 
+//       success: true,
+//       isFavorite: false,
+//       favoritesCount: apartment.favoritedBy.length,
+//       message: 'Удалено из избранного'
+//     });
+//   } catch (error) {
+//     console.error('Ошибка при удалении из избранного:', error);
+//     res.status(500).json({ 
+//       success: false,
+//       message: 'Ошибка сервера',
+//       error: error.message 
+//     });
+//   }
+// };
+
+// Получить количество избранных для пользователя
+const getFavoritesCount = async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    const count = await Apartment.countDocuments({ 
+      favoritedBy: userId 
+    });
+
+    res.status(200).json({
+      success: true,
+      count
+    });
+  } catch (error) {
+    console.error('Ошибка при получении количества избранных:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Ошибка сервера' 
+    });
+  }
+};
+
 module.exports = { 
   addApartment, 
   getAllApartments, 
@@ -163,5 +399,10 @@ module.exports = {
   getUserApartments, 
   getUserApartmentsCount,
   updateApartment,
-  deleteApartment
+  deleteApartment,
+  toggleFavorite,
+  getUserFavorites,
+  checkIsFavorite,
+  getFavoritesCount,
+  getUserId
 };

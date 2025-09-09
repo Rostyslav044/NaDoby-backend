@@ -42,17 +42,16 @@ const apartmentSchema = new mongoose.Schema({
 
   name: { type: String },           // Имя (владелец или пользователь)
   phones: [String],                // Телефоны
-
   conveniences: [String],          // Удобства (checkbox)
   photos: [String],        
-      
   uploudImages: [String],         // Необязательные изображения
-
   latitude: { type: Number },
   longitude: { type: Number },
-
+  favoritedBy: [String],
   user_id: { type: String, required: true}, // id пользователя
 
 }, { timestamps: true });
+
+
 
 module.exports = mongoose.model('Apartment', apartmentSchema);
