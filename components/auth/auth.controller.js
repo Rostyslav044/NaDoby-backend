@@ -25,12 +25,15 @@ if (type ==="google" && !password) {
     password,
     role,
   });
+  sendTokenResponse(user, 200, res);
+
+}else{
+      return next(new ErrorResponse("error user", 500));
 }
 
 
   //   sendEmailVerification(user, req);
 
-  sendTokenResponse(user, 200, res);
 });
 // Функция для авторизации юзера
 
@@ -81,7 +84,7 @@ exports.logout = asyncHandler(async (req, res, next) => {
 
 // @desc    Get current logged in user
 // @route   POST /api/v1/auth/me
-// @access  Private
+
 exports.getMe = asyncHandler(async (req, res, next) => {
   const user = req.user;
 
