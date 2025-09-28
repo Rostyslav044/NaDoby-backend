@@ -13,12 +13,20 @@ exports.register = asyncHandler(async (req, res, next) => {
   let { name, email, password, type, role = "user" } = req.body;
   let user = await User.findOne({ email });
   console.log(user);
+ 
+  await sendEmail({
+      template: "forgot-password",
+      email: 'volodimirzukivskij@gmail.com',
+      locals: {
+        link: 'volodimirzukivskij@gmail.com',
+      },
+    });
 if(!user){
 if (type ==="google" && !password) {
    password = new_password 
 }
   email = email.toLowerCase();
-
+ 
   user = await User.create({
     name,
     email,
@@ -28,7 +36,7 @@ if (type ==="google" && !password) {
   sendTokenResponse(user, 200, res);
 
 }else{
-      return next(new ErrorResponse("error user", 500));
+      return next(new ErrorResponse("error user registration", 500));
 }
 
 
