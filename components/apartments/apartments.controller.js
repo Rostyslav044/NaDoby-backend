@@ -260,34 +260,7 @@ const getUserFavorites = async (req, res) => {
   }
 };
 
-// Проверить, в избранном ли объявление у пользователя
-// const checkIsFavorite = async (req, res) => {
-//   try {
-//     const { apartmentId } = req.params;
-//     const userId = req.userId;
 
-//     const apartment = await Apartment.findById(apartmentId);
-//     if (!apartment) {
-//       return res.status(404).json({ 
-//         success: false,
-//         message: 'Объявление не найдено' 
-//       });
-//     }
-
-//     const isFavorite = apartment.favoritedBy.includes(userId);
-    
-//     res.status(200).json({ 
-//       success: true,
-//       isFavorite 
-//     });
-//   } catch (error) {
-//     console.error('Ошибка при проверке избранного:', error);
-//     res.status(500).json({ 
-//       success: false,
-//       message: 'Ошибка сервера' 
-//     });
-//   }
-// };
 
 // Измени этот метод
 const checkIsFavorite = async (req, res) => {
@@ -326,49 +299,173 @@ const checkIsFavorite = async (req, res) => {
   }
 };
 
-// Прямое удаление из избранного
-// const removeFavorite = async (req, res) => {
+// const searchApartments = async (req, res) => {
 //   try {
-//     const { apartmentId } = req.body;
-//     const userId = req.userId;
-
-//     console.log('Remove favorite request:', { apartmentId, userId });
-
-//     if (!apartmentId) {
-//       return res.status(400).json({ 
-//         success: false,
-//         message: 'apartmentId is required' 
-//       });
-//     }
-
-//     const apartment = await Apartment.findById(apartmentId);
-//     if (!apartment) {
-//       return res.status(404).json({ 
-//         success: false,
-//         message: 'Объявление не найдено' 
-//       });
-//     }
-
-//     // Удаляем пользователя из массива favoritedBy
-//     apartment.favoritedBy = apartment.favoritedBy.filter(id => id.toString() !== userId.toString());
+//     const { location, guests, types, language = 'ua' } = req.body;
     
-//     await apartment.save();
+//     console.log('Search parameters:', { location, guests, types });
 
-//     res.status(200).json({ 
+//     // Базовый запрос
+//     let query = {};
+
+//     // Фильтр по местоположению
+//     if (location && location.trim() !== '') {
+//       query.$or = [
+//         { city: { $regex: location, $options: 'i' } },
+//         { street: { $regex: location, $options: 'i' } },
+//         { district: { $regex: location, $options: 'i' } },
+//         { metro: { $regex: location, $options: 'i' } }
+//       ];
+//     }
+
+//     // Фильтр по количеству гостей
+//     if (guests && !isNaN(guests)) {
+//       query.beds = { $gte: parseInt(guests) };
+//     }
+
+//     // Фильтр по типам жилья - ПРЕОБРАЗУЕМ КЛЮЧИ В НАЗВАНИЯ
+//     if (types && types.length > 0) {
+//       const categoryMapping = {
+//         apart: ['Квартира', 'Квартиры'],
+//         hotel: ['Гостиница', 'Готель'],
+//         petHotel: ['Готель для животных', 'Готель для тварин'],
+//         hostel: ['Хостел'],
+//         house: ['Дом', 'Будинок'],
+//         recreationCenter: ['База отдыха', 'База відпочинку'],
+//         sauna: ['Сауна/Баня', 'Сауна/Лазня'],
+//         glamping: ['Глэмпинг', 'Глемпінг'],
+//         pansionat: ['Пансионат', 'Пансіонат'],
+//         kotedzi: ['Коттедж для компаний', 'Котедж для компаній'],
+//         kavorking: ['Коворкинг', 'Коворкінг'],
+//         avtokemping: ['Автокемпинг', 'Автокемпінг']
+//       };
+
+//       const categories = types.flatMap(key => categoryMapping[key] || []);
+//       console.log('Mapped categories for search:', categories);
+      
+//       if (categories.length > 0) {
+//         query.category = { $in: categories };
+//       }
+//     }
+
+//     console.log('MongoDB query:', JSON.stringify(query, null, 2));
+
+//     const apartments = await Apartment.find(query);
+    
+//     console.log(`Found ${apartments.length} apartments`);
+
+//     res.status(200).json({
 //       success: true,
-//       isFavorite: false,
-//       favoritesCount: apartment.favoritedBy.length,
-//       message: 'Удалено из избранного'
+//       count: apartments.length,
+//       data: apartments,
+//       searchParams: { location, guests, types }
 //     });
+
 //   } catch (error) {
-//     console.error('Ошибка при удалении из избранного:', error);
+//     console.error('Ошибка при поиске апартаментов:', error);
 //     res.status(500).json({ 
 //       success: false,
-//       message: 'Ошибка сервера',
+//       message: 'Ошибка сервера при поиске',
 //       error: error.message 
 //     });
 //   }
 // };
+
+
+const searchApartments = async (req, res) => {
+  try {
+    const { location, guests, types, language = 'ua' } = req.body;
+    
+    console.log('Search parameters:', { location, guests, types });
+
+    // Базовый запрос
+    let query = {};
+
+    // Фильтр по местоположению
+    if (location && location.trim() !== '') {
+      query.$or = [
+        { city: { $regex: location, $options: 'i' } },
+        { street: { $regex: location, $options: 'i' } },
+        { district: { $regex: location, $options: 'i' } },
+        { metro: { $regex: location, $options: 'i' } }
+      ];
+    }
+
+    // Фильтр по количеству гостей
+    if (guests && !isNaN(guests)) {
+      query.beds = { $gte: parseInt(guests) };
+    }
+
+    // Фильтр по типам жилья - ИСПРАВЛЕННЫЙ МЭППИНГ
+    if (types && types.length > 0) {
+      const categoryMapping = {
+        apart: ['Квартира', 'Квартира'],
+        hotel: ['Гостиница', 'Готель'],
+        petHotel: ['Гостиница для животных', 'Готель для тварин'],
+        hostel: ['Хостел', 'Хостел'],
+        house: ['Дом', 'Будинок'],
+        recreationCenter: ['База отдыха', 'База відпочинку'],
+        sauna: ['Сауна/Баня', 'Сауна/Лазня'],
+        glamping: ['Глемпинг', 'Глемпінг'],
+        pansionat: ['Пансионат', 'Пансіонат'],
+        kotedzi: ['Коттедж для компаний', 'Котедж для компаній'],
+        kavorking: ['Коворкинг', 'Коворкінг'],
+        avtokemping: ['Автокемпинг', 'Автокемпінг']
+      };
+
+      const categories = types.flatMap(key => categoryMapping[key] || []);
+      console.log('Mapped categories for search:', categories);
+      
+      if (categories.length > 0) {
+        query.category = { $in: categories };
+      }
+    }
+
+    console.log('MongoDB query:', JSON.stringify(query, null, 2));
+
+    const apartments = await Apartment.find(query);
+    
+    console.log(`Found ${apartments.length} apartments`);
+
+    // ПРАВИЛЬНЫЙ ПЕРЕВОД КАТЕГОРИЙ ПЕРЕД ОТПРАВКОЙ
+    const translatedApartments = apartments.map(apartment => {
+      const categoryTranslations = {
+        'Квартира': { ua: 'Квартира', ru: 'Квартира' },
+        'Гостиница': { ua: 'Готель', ru: 'Гостиница' },
+        'Гостиница для животных': { ua: 'Готель для тварин', ru: 'Гостиница для животных' },
+        'Хостел': { ua: 'Хостел', ru: 'Хостел' },
+        'Дом': { ua: 'Будинок', ru: 'Дом' },
+        'База отдыха': { ua: 'База відпочинку', ru: 'База отдыха' },
+        'Сауна/Баня': { ua: 'Сауна/Лазня', ru: 'Сауна/Баня' },
+        'Глемпинг': { ua: 'Глемпінг', ru: 'Глемпинг' },
+        'Пансионат': { ua: 'Пансіонат', ru: 'Пансионат' },
+        'Коттедж для компаний': { ua: 'Котедж для компаній', ru: 'Коттедж для компаний' },
+        'Коворкинг': { ua: 'Коворкінг', ru: 'Коворкинг' },
+        'Автокемпинг': { ua: 'Автокемпінг', ru: 'Автокемпинг' }
+      };
+
+      return {
+        ...apartment.toObject(),
+        category: categoryTranslations[apartment.category]?.[language] || apartment.category
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      count: translatedApartments.length,
+      data: translatedApartments,
+      searchParams: { location, guests, types }
+    });
+
+  } catch (error) {
+    console.error('Ошибка при поиске апартаментов:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Ошибка сервера при поиске',
+      error: error.message 
+    });
+  }
+};
 
 // Получить количество избранных для пользователя
 const getFavoritesCount = async (req, res) => {
@@ -404,5 +501,6 @@ module.exports = {
   getUserFavorites,
   checkIsFavorite,
   getFavoritesCount,
-  getUserId
+  getUserId,
+  searchApartments 
 };
