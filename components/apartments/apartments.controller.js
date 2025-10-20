@@ -11,12 +11,17 @@ const getApartmentById = async (req, res) => {
     if (!apartment) {
       return res.status(404).json({ message: 'Объявление не найдено' });
     }
-    res.status(200).json(apartment);
+     const userApartmentsCount = await Apartment.countDocuments({ user_id: apartment.user_id });
+    res.status(200).json({
+      apartment,
+      userApartmentsCount
+    });
   } catch (error) {
     console.error('Ошибка при получении квартиры по ID:', error);
     res.status(500).json({ message: 'Ошибка сервера' });
   }
 };
+
 
 const addApartment = async (req, res) => {
   try {
